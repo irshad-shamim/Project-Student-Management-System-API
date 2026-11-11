@@ -62,3 +62,15 @@ def one_student(student_rollno: str, db: Session = Depends(get_db)):
     return{
         "student found sescussfuly": student
     }
+
+@app.get("/student_name/{student_name}")
+def one_student_by_name(student_name: str, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.name == student_name).first()
+    if not student:
+        raise HTTPException(
+            status_code= 404,
+            detail= f"student of name {student_name} is not avialaible"
+        )
+    return {
+        "student found seccussfully": student
+    }
