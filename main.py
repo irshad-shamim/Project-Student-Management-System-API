@@ -43,5 +43,11 @@ def add_new_student(name:str, email:str, rollno:str, course:str, year:int, db: S
         "student": students
     }
 
-
+@app.get("/all_student")
+def all_student(db: Session = Depends(get_db)):
+    students = db.query(Student).all()
+    return {
+        "total student": len(students),
+        "students details": students
+    }
 
