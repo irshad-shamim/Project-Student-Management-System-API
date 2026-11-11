@@ -1,10 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
-from dtos import Student
 from sqlalchemy import create_engine, String, Integer, Column
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 app = FastAPI()
 
-empty = []
 
 DATABASE_URL = "sqlite:///./details.db"
 
