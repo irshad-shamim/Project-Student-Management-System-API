@@ -51,3 +51,14 @@ def all_student(db: Session = Depends(get_db)):
         "students details": students
     }
 
+@app.get("/one_student/{student_rollno}")
+def one_student(student_rollno: str, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.rollno == student_rollno).first()
+    if not student:
+        raise HTTPException(
+            status_code= 404,
+            detail = f"student not found of rollno {student_rollno}"
+        )
+    return{
+        "student found sescussfuly": student
+    }
