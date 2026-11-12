@@ -90,7 +90,6 @@ def student_update(student_rollno:str, name:str | None = None, email:str | None 
             detail= f"no student found of rollno {student_rollno}"
         )
     
-    student.rollno = student_rollno
     if name != None:
         student.name = name
     if email != None:
@@ -108,11 +107,11 @@ def student_update(student_rollno:str, name:str | None = None, email:str | None 
     }
 
 @app.delete("/delete_student/{student_rollno}")
-def delete_student(student_rollno:str, db: Session = Depends(get_db)):
+def delete_student(student_rollno:str, db: Session = Depends(get_db), user=Depends(verify_token)):
     student = db.query(Student).filter(Student.rollno == student_rollno).first()
     if not student:
         raise HTTPException(
-            status_code = 404,
+            status_code = 409,
             detail = f"student not found of rollno {student_rollno}"
         )
 
@@ -127,11 +126,11 @@ def delete_student(student_rollno:str, db: Session = Depends(get_db)):
 
 #___________________login___________________________
 
-@app.get("/login")
+@app.post("/login")
 def login(username:str, password:str):
     if username != "irshad" or password != "pich":
         raise HTTPException(
-            status_code= 404,
+            status_code= 401,
             detail= "wrong password and user name"
         )
     token = create_token({
