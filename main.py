@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, String, Integer, Column
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
+from password import create_token, verify_token
 app = FastAPI()
 
 
@@ -33,7 +34,7 @@ def get_db():
         db.close()
 
 @app.post("/new_student")
-def add_new_student(name:str, email:str, rollno:str, course:str, year:int, db: Session = Depends(get_db)):
+def add_new_student(name:str, email:str, rollno:str, course:str, year:int, db: Session = Depends(get_db), user = Depends(verify_token)):
     students = Student(name=name, email=email, rollno=rollno, course=course, year=year)
     if db.query(Student).filter(Student.rollno == rollno).first():
         raise HTTPException(
@@ -81,7 +82,7 @@ def one_student_by_name(student_name: str, db: Session = Depends(get_db)):
     }
 
 @app.put("/student_update/{student_rollno}")
-def student_update(student_rollno:str, name:str | None = None, email:str | None = None, course:str | None = None, year:int | None = None, db: Session = Depends(get_db)):
+def student_update(student_rollno:str, name:str | None = None, email:str | None = None, course:str | None = None, year:int | None = None, db: Session = Depends(get_db), user = Depends(verify_token)):
     student = db.query(Student).filter(Student.rollno == student_rollno).first()
     if not student :
         raise HTTPException (
@@ -121,4 +122,21 @@ def delete_student(student_rollno:str, db: Session = Depends(get_db)):
     return{
         "status":"deleted seccusfully",
         "student": student
+    }
+
+
+#___________________login___________________________
+
+@app.get("/login")
+def login(username:str, password:str):
+    if username != "irshad" or password != "pich":
+        raise HTTPException(
+            status_code= 404,
+            detail= "wrong password and user name"
+        )
+    token = create_token({
+        "sub": username
+    })
+    return {
+        "token": token
     }
