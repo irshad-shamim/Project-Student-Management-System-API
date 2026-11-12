@@ -35,7 +35,7 @@ def get_db():
 @app.post("/new_student")
 def add_new_student(name:str, email:str, rollno:str, course:str, year:int, db: Session = Depends(get_db)):
     students = Student(name=name, email=email, rollno=rollno, course=course, year=year)
-    if db.query(Student).filter(Student.rollno == rollno):
+    if db.query(Student).filter(Student.rollno == rollno).first():
         raise HTTPException(
             status_code=404,
             detail = "already rollno exist"
@@ -81,18 +81,23 @@ def one_student_by_name(student_name: str, db: Session = Depends(get_db)):
     }
 
 @app.put("/student_update/{student_rollno}")
-def student_update(student_rollno:str, name:str, email:str, course:str, year:int, db: Session = Depends(get_db)):
+def student_update(student_rollno:str | None = None, name:str | None = None, email:str | None = None, course:str | None = None, year:int | None = None, db: Session = Depends(get_db)):
     student = db.query(Student).filter(Student.rollno == student_rollno).first()
     if not student :
         raise HTTPException (
             status_code= 404,
             detail= f"no student found of rollno {student_rollno}"
         )
-    student.name = name
-    student.email = email
+    
     student.rollno = student_rollno
-    student.course = course
-    student.year = year
+    if name != None:
+        student.name = name
+    if email != None:
+        student.email = email
+    if course != None:
+        student.course = course
+    if year != None:
+        student.year = year
 
     db.commit()
     db.refresh(student)
