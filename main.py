@@ -74,3 +74,24 @@ def one_student_by_name(student_name: str, db: Session = Depends(get_db)):
     return {
         "student found seccussfully": student
     }
+
+@app.put("/student_update/{student_rollno}")
+def student_update(student_rollno:str, name:str, email:str, course:str, year:int, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.rollno == student_rollno).first()
+    if not student :
+        raise HTTPException (
+            status_code= 404,
+            detail= f"no student found of rollno {student_rollno}"
+        )
+    student.name = name
+    student.emai = email
+    student.rollno = student_rollno
+    student.course = course
+    student.year = year
+
+    db.commit()
+    db.refresh(student)
+    return{
+        "updated status":"secsusfuly",
+        "new": student
+    }
