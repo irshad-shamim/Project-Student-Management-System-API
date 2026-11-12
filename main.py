@@ -95,3 +95,20 @@ def student_update(student_rollno:str, name:str, email:str, course:str, year:int
         "updated status":"secsusfuly",
         "new": student
     }
+
+@app.delete("/delete_student/{student_rollno}")
+def delete_student(student_rollno:str, db: Session = Depends(get_db)):
+    student = db.query(Student).filter(Student.rollno == student_rollno).first()
+    if not student:
+        raise HTTPException(
+            status_code = 404,
+            detail = f"student not found of rollno {student_rollno}"
+        )
+
+    db.delete(student)
+    db.commit()
+
+    return{
+        "status":"deleted seccusfully",
+        "student": student
+    }
