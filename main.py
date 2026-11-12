@@ -81,7 +81,7 @@ def one_student_by_name(student_name: str, db: Session = Depends(get_db)):
     }
 
 @app.put("/student_update/{student_rollno}")
-def student_update(student_rollno:str | None = None, name:str | None = None, email:str | None = None, course:str | None = None, year:int | None = None, db: Session = Depends(get_db)):
+def student_update(student_rollno:str, name:str | None = None, email:str | None = None, course:str | None = None, year:int | None = None, db: Session = Depends(get_db)):
     student = db.query(Student).filter(Student.rollno == student_rollno).first()
     if not student :
         raise HTTPException (
