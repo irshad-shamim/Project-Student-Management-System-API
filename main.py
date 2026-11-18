@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy import create_engine, String, Integer, Column
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
-from password import create_token, verify_token
+#from password import create_token, verify_token
+from adv_pass import create_token,verify_token,fake_db,verify_password
+from fastapi.security import OAuth2PasswordRequestForm
 app = FastAPI()
 
 
@@ -124,9 +126,9 @@ def delete_student(student_rollno:str, db: Session = Depends(get_db), user=Depen
     }
 
 
-#___________________login___________________________
+#___________________login_________________________________________________________________________
 
-@app.post("/login")
+'''@app.post("/login")
 def login(username:str, password:str):
     if username != "irshad" or password != "pich":
         raise HTTPException(
@@ -138,4 +140,21 @@ def login(username:str, password:str):
     })
     return {
         "token": token
+    }'''
+
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = fake_db.get(form_data.username)
+    if not user or not verify_password(form_data.password,user["hashed_password"]):
+        raise HTTPException(
+            status_code= 401,
+            detail= "user name or password is worng"
+        )
+
+    acces_token = create_token({"sub":form_data.username})
+
+    return{
+        "access_token": acces_token,
+        "token_type": "bearer"
     }
